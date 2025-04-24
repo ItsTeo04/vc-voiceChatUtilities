@@ -119,6 +119,26 @@ const VoiceChannelContext: NavContextMenuPatchCallback = (children, { channel }:
             />
 
             <Menu.MenuItem
+                key="voice-tools-undeafen_unmute-all"
+                id="voice-tools-undeafen_unmute-all"
+                label="Unmute & Undeafen all"
+                action={() => sendPatch(channel, {
+                    deaf: false,
+                    mute: false,
+                })}
+            />
+            
+            <Menu.MenuItem
+                key="voice-tools-deafen_mute-all"
+                id="voice-tools-deafen_mute-all"
+                label="Mute & Deafen all"
+                action={() => sendPatch(channel, {
+                    deaf: true,
+                    mute: true,
+                })}
+            />
+
+            <Menu.MenuItem
                 label="Move all"
                 key="voice-tools-move-all"
                 id="voice-tools-move-all"
