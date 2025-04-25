@@ -59,11 +59,15 @@ interface VoiceChannelContextProps {
 const VoiceChannelContext: NavContextMenuPatchCallback = (children, { channel }: VoiceChannelContextProps) => {
     // only for voice and stage channels
     if (!channel || (channel.type !== 2 && channel.type !== 13)) return;
+
     const userCount = Object.keys(VoiceStateStore.getVoiceStatesForChannel(channel.id)).length;
     if (userCount === 0) return;
 
     const guildChannels: { VOCAL: { channel: Channel, comparator: number }[] } = GuildChannelStore.getChannels(channel.guild_id);
     const voiceChannels = guildChannels.VOCAL.map(({ channel }) => channel).filter(({ id }) => id !== channel.id);
+
+    // Channels except current
+    const otherVoiceChannels = voiceChannels.filter(({ id }) => id !== channel.id);
 
     children.splice(
         -1,
@@ -76,10 +80,25 @@ const VoiceChannelContext: NavContextMenuPatchCallback = (children, { channel }:
             <Menu.MenuItem
                 key="voice-tools-disconnect-all"
                 id="voice-tools-disconnect-all"
-                label="Disconnect all"
+                label="Disconnect all (This Channel)"
                 action={() => sendPatch(channel, {
                     channel_id: null,
                 })}
+            />
+            <Menu.MenuItem
+                key="voice-tools-disconnect-all-global"
+                id="voice-tools-disconnect-all-global"
+                label="Disconnect everyone (All Channels)"
+                action={() => {
+                    voiceChannels.forEach(vc => {
+                        const members = VoiceStateStore.getVoiceStatesForChannel(vc.id);
+                        if (Object.keys(members).length > 0) {
+                            sendPatch(vc, {
+                                channel_id: null,
+                            });
+                        }
+                    });
+                }}
             />
 
             <Menu.MenuItem
