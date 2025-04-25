@@ -158,7 +158,7 @@ const VoiceChannelContext: NavContextMenuPatchCallback = (children, { channel }:
             />
 
             <Menu.MenuItem
-                label="Move all"
+                label="Move all (This Channel Only)"
                 key="voice-tools-move-all"
                 id="voice-tools-move-all"
             >
@@ -175,6 +175,31 @@ const VoiceChannelContext: NavContextMenuPatchCallback = (children, { channel }:
                     );
                 })}
 
+            </Menu.MenuItem>
+
+            <Menu.MenuItem
+                label="Move everyone (All Channels)"
+                key="voice-tools-move-global"
+                id="voice-tools-move-global"
+            >
+                {voiceChannels.map(targetChannel => (
+                    <Menu.MenuItem
+                        key={`global-move-to-${targetChannel.id}`}
+                        id={`global-move-to-${targetChannel.id}`}
+                        label={targetChannel.name}
+                        action={() => {
+                            // Move everyone from ALL channels (including current) into targetChannel
+                            voiceChannels.forEach(sourceChannel => {
+                                const members = VoiceStateStore.getVoiceStatesForChannel(sourceChannel.id);
+                                if (Object.keys(members).length > 0) {
+                                    sendPatch(sourceChannel, {
+                                        channel_id: targetChannel.id,
+                                    }, true);
+                                }
+                            });
+                        }}
+                    />
+                ))}
             </Menu.MenuItem>
         </Menu.MenuItem>
     );
